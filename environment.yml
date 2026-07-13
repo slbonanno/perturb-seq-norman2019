@@ -1,0 +1,14 @@
+name: perturb-seq
+channels: [conda-forge, bioconda]
+dependencies:
+  - python=3.11
+  - scanpy
+  - anndata
+  - numpy
+  - pandas
+  - scipy
+  - leidenalg
+  - python-igraph
+  - matplotlib
+  - jupyterlab
+  - pip
