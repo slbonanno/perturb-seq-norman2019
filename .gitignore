@@ -1,0 +1,12 @@
+data/raw/
+data/interim/
+*.h5ad
+*.mtx.gz
+*.tsv.gz
+*.csv.gz
+.ipynb_checkpoints/
+__pycache__/
+*.pyc
+.DS_Store
+.venv/
+env/
