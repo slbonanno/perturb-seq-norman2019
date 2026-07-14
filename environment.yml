@@ -11,4 +11,5 @@ dependencies:
   - python-igraph
   - matplotlib
   - jupyterlab
-  - pip
+  - pip:
+    - pydeseq2
