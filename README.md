@@ -1,6 +1,6 @@
 # Perturb-seq Reanalysis — Norman et al. 2019
 
-A reanalysis of a CRISPRa Perturb-seq screen in K562 cells, built to practice single-cell analysis and reproduce/extend findings from the source paper.
+A reprocessing of Norman et al. 2019 CRISPRa scRNA-seq data, to practice data QC, filtering, DE analysis, and hypothesis generation
 
 **Source paper:** Norman et al., *Science* 2019, "Exploring genetic interaction manifolds constructed from rich single-cell phenotypes"
 **Data:** [GSE133344](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE133344)
@@ -10,35 +10,61 @@ A reanalysis of a CRISPRa Perturb-seq screen in K562 cells, built to practice si
 
 ## Loading, QC, and guide parsing
 
-I started from the Cell Ranger–filtered matrices on GEO rather than raw FASTQ, since Cell Ranger doesn't run natively on my machine and the interesting part of this project is Perturb-seq–specific QC, not droplet-calling. After standard filtering (mitochondrial %, total counts, gene counts) and CP10K normalization, 102,337 cells remained. I then parsed the dual-guide CRISPRa identity strings to recover which gene(s) each cell was perturbed with, recovering 105 single-gene targets — matching the count reported in the paper, a good first sanity check that the data was loaded and parsed correctly.
+Starting with Cell Ranger–filtered matrices available from GEO rather than raw FASTQ. Project focus is on Perturb-seq parameters and biological interpretation.
+Standard filtering (pct mt, total cts, gene cts), CP10K normalization: 102,337 cells passing QC.
+Used tsv available from publication to parse both CRISPRa guide identities per cell
+105 single-gene targets were identified, matching count reported in the paper - data loading and parsing seems correct.
 
 ## On-target efficacy
 
-Before trusting any downstream differential expression, I wanted to confirm the CRISPRa system was actually working as expected — i.e., that target genes were reliably being activated.
+Each CRISPRa guide should lead to upregulation of its target gene. There is significant heterogeneity in effect size, and notably many cells with guide detected but no change in expression levels. CRISPRa may not always be sufficient to drive strong expression (promoter/enhancer effects, heterogeneity in activation of other elements of transcriptional machinery)
 
 ![On-target efficacy](results/figures/on_target_efficacy.png)
-*Target genes show strong, consistent activation (median log2FC ≈ 2.08), confirming the CRISPRa system is working as expected. Note that classical p-values collapse to near-zero for most genes here — a pseudoreplication artifact of testing at the single-cell level with tens of thousands of cells — so I used effect size (log2FC) and penetrance rather than significance to rank genes.*
+*Figure 1. On-target CRISPRa activation efficacy across the Norman et al. 2019 single-gene perturbation screen. Analysis restricted to the 102/105 single-gene CRISPRa targets present in the filtered gene set (n = 102,337 cells post-QC; guide assignment required good_coverage == True). For each target gene, log-normalized (CP10K, log1p) expression of that gene itself was compared between cells carrying its activating guide and the shared non-targeting control population (n = 10,990 cells).
+
+(A) Distribution of log2 fold-change (target vs. control) across all single-gene targets. The distribution is overwhelmingly shifted positive (median log2FC = 2.08), consistent with the expected direction of effect for CRISPRa — the large majority of guides successfully increased expression of their intended target.
+
+(B) Mean lognorm expression (± SEM) for the 15 strongest-activating targets, target vs. control, with a jittered subsample (n = 150 cells/group) overlaid to show within-group spread. Bar and plungers understate cell-to-cell heterogeneity in activation of target.
+
+(C) Kernel density estimates of expression for the two strongest-activating genes and two genes closest to the screen's median log2FC, against the control distribution. Control's y-axis is clipped. Group sizes (n) are reported in the legend rather than encoded in curve height. Note that "median performer" genes show more cells with 0 change in target.
+
+Note: statistical significance (Mann-Whitney U) was conducted; p ~0 for the majority of targets (75/102 genes had p = 0) irrespective of L2FC - not useful in ranking genes, here.*
 
 I also looked at whether activation strength related to how well-represented or how strongly-tagged (guide UMI count) a target was:
 
 ![Screen characterization](results/figures/screen_characterization.png)
-*Roughly half of cells for a given target don't show detectable activation — "incomplete penetrance" — and this holds across nearly the whole screen, not just weak hits. Log2FC increases with both guide UMI count and cell representation, consistent with a real dosage/efficacy relationship.*
+*RFigure 2. Screen-wide penetrance, statistical power, and guide dosage effects.
 
-## Differential expression: two methods, cross-validated
+(A) Distribution of penetrance (fraction of a target's cells with expression above the control mean) across all 102 single-gene targets. Most targets show penetrance well below 1.0, confirming that a responder/non-responder split is warranted before downstream (perturbed vs ctrl-guide cells) DE analysis.
 
-I ran DE two ways — a standard single-cell Wilcoxon test, and a pseudobulk approach (aggregating counts per target/lane and running DESeq2) — because the Wilcoxon test's pseudoreplication problem makes its p-values unreliable at this cell count, and I wanted an independent check that wasn't subject to the same issue.
+(B) L2FC vs. number of cells recovered per target gene (log-scaled x-axis, robust Theil-Sen fit). A positive slope (≈1 per log10 unit of cell count) indicates targets with more recovered cells tend to show larger L2FC - which suggests the data is robust (usually undersampling can lead to inflated L2FC)
+
+(C) L2FC vs. mean guide-barcode UMI count per target cell (log-scaled x-axis, robust Theil-Sen fit). A positive slope (≈0.95) indicates that cells with more detected guide transcript show stronger target activation*
+
+## DE: (1) standard single-cell Woilcoxon test= (2) pseudobulk
+
+(1) single-cell Wilcoxon test (each cell is a replicate, groups are CRISPRa-target and ctrl)
+(2) pseudobulk (aggr counts per target (lanes are replicates) and run pyDESeq2)
+
+padj is inflated in Wilcoxon at this many cells; comparing methods (both are standard) helps
 
 ![DE method comparison](results/figures/de_method_comparison.png)
-*The two methods agree reasonably well on which genes are significant. Looking at genes with low baseline expression, pseudobulk DE calls them as activated (positive log2FC) almost universally — likely a mix of real biology (a gene switching from off to on mechanically produces a huge fold-change) and statistical noise at low counts. I'd trust the direction of these low-expression hits more than their exact magnitude.*
+*Figure 3. Comparing single-cell (Wilcoxon) and pseudobulk (DESeq2) approaches to downstream perturbation DE.
 
-As a further validation, I checked whether a target's own activation strength predicted how many other genes changed downstream — the paper found these were essentially uncorrelated (R≈0.07), which would be a bit counterintuitive if you assumed "stronger activation → bigger transcriptional effect."
+(A) Jaccard overlap between each method's DEGs (padj < 0.05), computed per target (perturbation). 93 targets with sufficient data in both methods. Median overlap ≈0.31 — moderate agreement/dissonance (thousands of individual cells in Wilcoxon vs. 8 lanes ("replicates") in DESeq2).
+
+(B) Gene-by-gene L2FC concordance for target/perturbation=KLF1. Red points are significant (padj < 0.05) in both Wilcoxon and pseudobulk DESeq2.
+
+(C) DESeq2 pseudobulk: L2FC vs. mean normalized expression (baseMean, log scale) across all ~1.45M gene-target tests. Confirms that across all perturbations, low-expression genes show highly unstable, often extreme L2FC estimates regardless of padj, while higher-expression genes show progressively tighter, more reliable effect-size estimates.  lowly-detected genes have inflated L2FC, in positive direction - maybe because CRISPRa is likely to "occasionally induce gene count detection" for some genes with close to 0 counts in control. CRISPRi might resulted the inverted phenomenon: low basemean correlates with negative L2FC*
+
+Further validation - checked whether a target's own activation strength predicts how many downstream DEGs (below)
 
 ![Fold-activation vs DE gene count](results/figures/fold_activation_vs_de_genes.png)
-*[Fill in once you have your R value] — reproducing the paper's finding that activation strength and transcriptional breadth are largely independent.*
+*Figure 4. L2FC vs downstream DEG count. There is no correlation, consistent with publication. Here, Pearson R = -0.01, Theil-Sen slope = 3.37, n = 102*
 
 ## Clustering and cell-state identification
 
-With the perturbation-level analysis in hand, I next asked what cell states exist across the whole screen — since K562 is known to have multi-lineage differentiation potential, and the paper's key biological finding was built around exactly this kind of structure.
+With perturbation validated, moved to clustering and analysis.  Parent cell line is K562, known to have multi-lineage differentiation potential.
 
 ![UMAP cluster names](results/figures/UMAP_clusterNames1.png)
 *Leiden clustering recovers clear erythroid and myeloid-like differentiation programs, alongside several clusters driven by cell state rather than lineage identity (cell cycle, ribosomal/translation activity, mitochondrial content, interferon response) — a common feature of single-cell data that's worth separating out rather than mislabeling as biological lineages. Cluster identities were assigned using marker genes and Enrichr gene-set enrichment, manually reviewed rather than taken from the single top automated hit — some enrichment results (like a "T cell" marker match in a dataset with no T cells) turned out to be artifacts of shared cell-cycle genes across unrelated marker-gene-set entries, which was a useful reminder not to trust automated annotation blindly.*
