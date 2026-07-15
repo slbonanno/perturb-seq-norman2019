@@ -86,7 +86,13 @@ technical note: sc.tl.ledien is scanpy's clustering (like FindClusters in Seurat
 
 (F) UMAP colored by number of genes detected per cell (plotted independently from (E), as gene detection saturates at high depth).
 
-Overall, classic technical artifacts such as sequencing depth, cell health/stress (pct mt), and batch effects seem negligible in this filtered dataset.*
+(G) UMAP colored by pct ribosomal.
+
+(H) UMAP colored by complexity score (log10 genes detected / log10 UMI count), flagging cells with low gene diversity relative to depth.
+
+(I) UMAP colored by cell cycle phase (G1/S/G2M), scored via canonical S- and G2M-phase marker genes.
+
+Overall, classic technical artifacts such as sequencing depth, cell health/stress (pct mt, pct ribosomal), batch effects, and low-complexity cells seem negligible in this filtered dataset. Cell cycle phase shows some structure, consistent with some cluster naming by enrichr being cell-cycle-driven.*
 
 
 ## Limitations
