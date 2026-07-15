@@ -72,19 +72,19 @@ technical note: sc.tl.ledien is scanpy's clustering (like FindClusters in Seurat
 *Figure 5. Marker genes were identified using sc.tl.rank_genes_groups.  Top genes per cluster were fed into Enrichr via gseapy, compared to (1) PanglaoDB_Augmented_2021: curated cell-type marker sets and (2) GO_Biological_Process_2021: functional pway annotation.  High confidence labels from both were then manually inspected and clusters assigned names as in figure.  Some drivers of naming include: erythroid and myeloid-like differentiation programs, cell state (cell cycle, ribosomal/translation activity, mt content, IFN response).  Some enrichment results i.e. "T cell" marker match are interesting and not likely true - CRISPRa could have induced marker genes for T cells, driving in silico labeling*
 
 ![UMAP technical drivers of clustering](results/figures/UMAP_technical_covariates.png)
-*Figure 5. Technical and experimental covariates across UMAP space.
+*Figure 6. Technical and experimental covariates across UMAP space.
 
 (A) UMAP colored by top 20 (by number of cells) single-gene CRISPRa target identity. Some perturbations drive a cluster, some result in expression profiles distributed across many.
 
 (B) UMAP colored by perturbation type (control, single, double). No strong global segregation by perturbation type is expected if cell state is driven primarily by differentiation lineage rather than perturbation identity alone.
 
-(C) UMAP colored by total UMI count per cell (sequencing depth).
+(C) UMAP colored by lane (gemgroup). No strong batch effects are observed.
 
-(D) UMAP colored by number of genes detected per cell (plotted independently from (C), as gene detection saturates at high depth).
+(D) UMAP colored by pct mt.
 
-(E) UMAP colored by pct mt.
+(E) UMAP colored by total UMI count per cell (sequencing depth).
 
-(F) UMAP colored by lane (gemgroup). No strong batch effects are observed.
+(F) UMAP colored by number of genes detected per cell (plotted independently from (E), as gene detection saturates at high depth).
 
 Overall, classic technical artifacts such as sequencing depth, cell health/stress (pct mt), and batch effects seem negligible in this filtered dataset.*
 
