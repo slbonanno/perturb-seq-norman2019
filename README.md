@@ -64,18 +64,20 @@ Further validation - checked whether a target's own activation strength predicts
 
 ## Clustering and cell-state identification
 
-With perturbation validated, moved to clustering and analysis.  Parent cell line is K562, known to have multi-lineage differentiation potential.
+With perturbation validated, moved to clustering and analysis.  Parent cell line is K562 (immortalized Hu leukemia), known to have multi-lineage differentiation potential. Used to study chronic myelogenous leukemia (CML), erythropoiesis, NK cell cytotoxicity.
+
+technical note: sc.tl.ledien is scanpy's clustering (like FindClusters in Seurat, both used to use Louvain rather than Leiden) - takes KNN graph and partitions into discrete communities.
 
 ![UMAP cluster names](results/figures/UMAP_clusterNames1.png)
-*Leiden clustering recovers clear erythroid and myeloid-like differentiation programs, alongside several clusters driven by cell state rather than lineage identity (cell cycle, ribosomal/translation activity, mitochondrial content, interferon response) — a common feature of single-cell data that's worth separating out rather than mislabeling as biological lineages. Cluster identities were assigned using marker genes and Enrichr gene-set enrichment, manually reviewed rather than taken from the single top automated hit — some enrichment results (like a "T cell" marker match in a dataset with no T cells) turned out to be artifacts of shared cell-cycle genes across unrelated marker-gene-set entries, which was a useful reminder not to trust automated annotation blindly.*
+*Marker genes were identified using sc.tl/rank_genes_groups.  Top genes per cluster were fed into Enrichr via gseapy, compared to (1) PanglaoDB_Augmented_2021: curated cell-type marker sets and (2) GO_Biological_Process_2021: functional pway annotation.  High confidence labels from both were then manually inspected and clusters assigned names as in figure.  Some drivers of naming include: erythroid and myeloid-like differentiation programs, cell state (cell cycle, ribosomal/translation activity, mt content, IFN response).  Some enrichment results i.e. "T cell" marker match are interesting and not likely true - CRISPRa could have induced marker genes for T cells, driving in silico labeling*
 
 ## Limitations
 
-- The responder/non-responder split (used to restrict DE to likely-perturbed cells) is a simple expression threshold, not a formal mixture model — a reasonable heuristic, but not a validated classifier.
-- Single-cell-level p-values throughout this project are inflated by pseudoreplication; effect sizes and the pseudobulk cross-check are more trustworthy than raw significance.
-- Low-expression DE hits should be read for direction, not precise magnitude.
+- The responder/non-responder split (used to restrict DE to likely-perturbed cells) is a simple expression threshold, not a formal mixture model (Mixscape in Seurat, Gaussian Mixture Models, scMAGeCK for CRISPRi or KO).
+- Single-cell-level p-values throughout this project are inflated by pseudoreplication (treating cell gene counts as independent replicates when this is not true, vis-a-vis wet lab process to obtain data); effect sizes and pseudobulk cross-check are more trustworthy than padj.
+- DE hits for low-expressed genes are lower confidence - direction of L2FC is worth following, but not magnitude.
 
 ## Next steps
 
-- Genetic interaction modeling on the combinatorial (dual-guide) perturbations, following the paper's additive model to identify synergistic/buffering gene pairs
+- Genetic interaction modeling on the combinatorial (dual-guide) perturbations, following Norman et al. 2019's additive model to identify synergistic/buffering gene pairs
 - Perturbation-level manifold analysis — asking which perturbations enrich which of the cell states identified here, extending the per-cell clustering above into the paper's per-perturbation framing
