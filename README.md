@@ -69,7 +69,7 @@ With perturbation validated, moved to clustering and analysis.  Parent cell line
 technical note: sc.tl.ledien is scanpy's clustering (like FindClusters in Seurat, both used to use Louvain rather than Leiden) - takes KNN graph and partitions into discrete communities.
 
 ![UMAP cluster names](results/figures/UMAP_clusterNames1.png)
-*Marker genes were identified using sc.tl/rank_genes_groups.  Top genes per cluster were fed into Enrichr via gseapy, compared to (1) PanglaoDB_Augmented_2021: curated cell-type marker sets and (2) GO_Biological_Process_2021: functional pway annotation.  High confidence labels from both were then manually inspected and clusters assigned names as in figure.  Some drivers of naming include: erythroid and myeloid-like differentiation programs, cell state (cell cycle, ribosomal/translation activity, mt content, IFN response).  Some enrichment results i.e. "T cell" marker match are interesting and not likely true - CRISPRa could have induced marker genes for T cells, driving in silico labeling*
+*Marker genes were identified using sc.tl.rank_genes_groups.  Top genes per cluster were fed into Enrichr via gseapy, compared to (1) PanglaoDB_Augmented_2021: curated cell-type marker sets and (2) GO_Biological_Process_2021: functional pway annotation.  High confidence labels from both were then manually inspected and clusters assigned names as in figure.  Some drivers of naming include: erythroid and myeloid-like differentiation programs, cell state (cell cycle, ribosomal/translation activity, mt content, IFN response).  Some enrichment results i.e. "T cell" marker match are interesting and not likely true - CRISPRa could have induced marker genes for T cells, driving in silico labeling*
 
 ## Limitations
 
