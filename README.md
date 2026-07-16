@@ -92,7 +92,7 @@ Figure 6. Technical and experimental covariates across UMAP space.
 
 (I) UMAP colored by cell cycle phase (G1/S/G2M), scored via canonical S- and G2M-phase marker genes.
 
-![Heatmap of targets and cell-class clusters: numbers of cells](results/figures/perturbation_manifold_UMAP.png)
+![Heatmap of targets and cell-class clusters: numbers of cells](results/figures/perturbation_cluster_enrichment_heatmap.png)
 Figure 7. Though clustering and naming were done agnostic to perturbation_status, some targets drive cells to a particular cluster i.e. CRISPRa on CEBPA, B, and E result in cells classified as Myeloid-like 2.
 
 Overall, classic technical artifacts such as sequencing depth, cell health/stress (pct mt, pct ribosomal), batch effects, and low-complexity cells seem negligible in this filtered dataset. Cell cycle phase shows some structure, consistent with some cluster naming by Enrichr being cell-cycle-driven.
