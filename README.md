@@ -92,7 +92,12 @@ Figure 6. Technical and experimental covariates across UMAP space.
 
 (I) UMAP colored by cell cycle phase (G1/S/G2M), scored via canonical S- and G2M-phase marker genes.
 
+![Heatmap of targets and cell-class clusters: numbers of cells](results/figures/perturbation_manifold_UMAP.png)
+Figure 7. Though clustering and naming were done agnostic to perturbation_status, some targets drive cells to a particular cluster i.e. CRISPRa on CEBPA, B, and E result in cells classified as Myeloid-like 2.
+
 Overall, classic technical artifacts such as sequencing depth, cell health/stress (pct mt, pct ribosomal), batch effects, and low-complexity cells seem negligible in this filtered dataset. Cell cycle phase shows some structure, consistent with some cluster naming by Enrichr being cell-cycle-driven.
+
+Some CRISPRa targets seem to induce a progam of gene expression robust enough to influence the detection/assigning of cell-class, when clustering is performed on the entire dataset.
 
 ## Comparison of DE signatures across perturbations
 
@@ -100,13 +105,12 @@ Which perturbations result in similar global changes in gene expression?
 
 Wilcoxon DE (target vs. control) per single CRISPRa target was run previously (above).  These results (L2FC and padj) were concatenated into one long-form table (gene × target are rows). Filtered for significant genes in at least 3 comparisons (padj < 0.05) — resulting in 4,602 genes. Pivoted to targets × genes (log2FC values, padj dropped), giving a ~105 × 4,602 signature matrix: one row per perturbation, DE by gene.
 
-This was wrapped as an AnnData object so the standard scanpy pipeline (z-score, PCA, neighbors, UMAP, Leiden) could be repurposed for perturbations instead of cells. Resulting UMAP clusters perturbations by similarity of downstream transcriptional effect — proximity reflects shared DE signature, not shared pathway membership or cell-state identity per se.
+This was wrapped as an AnnData object so the standard scanpy pipeline (z-score, PCA, neighbors, UMAP, Leiden) could be repurposed for perturbations instead of cells. Resulting UMAP clusters perturbations by similarity of downstream DE — proximity reflects shared DE signature, not shared pathway membership or cell-state identity per se.
 
-*Caveat:* padj was used only to select which genes enter the matrix, not to mask individual (target, gene) log2FC values — a gene can pass the filter via strong significance in one target and still contribute noisy, non-significant log2FC from other targets to the same matrix.
-
+*Caveat:* padj was used only to select which genes enter the matrix, not to mask individual (target, gene) L2FC values — a gene can pass the filter via strong significance in one target and still contribute noisy, non-significant L2FC from other targets to the same matrix.
 
 ![UMAP perturbation manifold](results/figures/perturbation_manifold_UMAP.png)
-Figure 7.  Wilcoxon was performed on each CRISPRa target cell set vs ctrl, L2FC and padj reported.  Put together into one df, then reduced number of genes considered to those with padj <0.05 in at least 3 comparisons (4602 genes remain).  PCA, clustering, UMAP reveal 5 Leiden clusters (colors).  Genes labeled on UMAP are CRISPRa perturbations; nearby points are perturbations that resulted in a similar DE signature across 4602 genes.
+Figure 8.  Genes labeled on UMAP are CRISPRa perturbations; nearby points are perturbations that resulted in a similar DE signature across 4602 genes.
 
 ## Limitations
 
@@ -117,4 +121,3 @@ Figure 7.  Wilcoxon was performed on each CRISPRa target cell set vs ctrl, L2FC 
 ## Next steps
 
 - Genetic interaction modeling on the combinatorial (dual-guide) perturbations, following Norman et al. 2019's additive model to identify synergistic/buffering gene pairs
-- Perturbation-level manifold analysis — asking which perturbations enrich which of the cell states identified here, extending the per-cell clustering above into the paper's per-perturbation framing
