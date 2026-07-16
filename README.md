@@ -92,7 +92,16 @@ technical note: sc.tl.ledien is scanpy's clustering (like FindClusters in Seurat
 
 (I) UMAP colored by cell cycle phase (G1/S/G2M), scored via canonical S- and G2M-phase marker genes.
 
-Overall, classic technical artifacts such as sequencing depth, cell health/stress (pct mt, pct ribosomal), batch effects, and low-complexity cells seem negligible in this filtered dataset. Cell cycle phase shows some structure, consistent with some cluster naming by enrichr being cell-cycle-driven.*
+Overall, classic technical artifacts such as sequencing depth, cell health/stress (pct mt, pct ribosomal), batch effects, and low-complexity cells seem negligible in this filtered dataset. Cell cycle phase shows some structure, consistent with some cluster naming by Enrichr being cell-cycle-driven.*
+
+## Comparison of DE signatures across perturbations
+
+Perturbing genes in similar or convergent pathways is likely to produce more overlap in DE genes than disparate perturbations.
+
+![UMAP perturbation manifold](results/figures/perturbation_manifold_UMAP.png)
+*Figure 7.  Wilcoxon was performed on each CRISPRa target cell set vs ctrl, L2FC and padj reported.  Put together into one df, then reduced number of genes considered to those with padj <0.05 in at least 3 comparisons (4602 genes remain).  PCA, clustering, UMAP reveal 5 Leiden clusters.  Genes labeled on UMAP are CRISPRa perturbations; nearby points are perturbations that resulted in a similar DE signature across 4602 genes.*
+
+
 
 
 ## Limitations
