@@ -96,12 +96,10 @@ Overall, classic technical artifacts such as sequencing depth, cell health/stres
 
 ## Comparison of DE signatures across perturbations
 
-Perturbing genes in similar or convergent pathways is likely to produce more overlap in DE genes than disparate perturbations.
+Which perturbations result in similar global changes in gene expression
 
 ![UMAP perturbation manifold](results/figures/perturbation_manifold_UMAP.png)
-*Figure 7.  Wilcoxon was performed on each CRISPRa target cell set vs ctrl, L2FC and padj reported.  Put together into one df, then reduced number of genes considered to those with padj <0.05 in at least 3 comparisons (4602 genes remain).  PCA, clustering, UMAP reveal 5 Leiden clusters.  Genes labeled on UMAP are CRISPRa perturbations; nearby points are perturbations that resulted in a similar DE signature across 4602 genes.*
-
-
+*Figure 7.  Wilcoxon was performed on each CRISPRa target cell set vs ctrl, L2FC and padj reported.  Put together into one df, then reduced number of genes considered to those with padj <0.05 in at least 3 comparisons (4602 genes remain).  PCA, clustering, UMAP reveal 5 Leiden clusters (colors).  Genes labeled on UMAP are CRISPRa perturbations; nearby points are perturbations that resulted in a similar DE signature across 4602 genes.*
 
 
 ## Limitations
