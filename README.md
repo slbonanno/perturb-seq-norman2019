@@ -66,7 +66,7 @@ Figure 4. L2FC vs downstream DEG count. There is no correlation, consistent with
 
 With perturbation validated, moved to clustering and analysis.  Parent cell line is K562 (immortalized Hu leukemia), known to have multi-lineage differentiation potential. Used to study chronic myelogenous leukemia (CML), erythropoiesis, NK cell cytotoxicity.
 
-technical note: sc.tl.ledien is scanpy's clustering (like FindClusters in Seurat, both used to use Louvain rather than Leiden) - takes KNN graph and partitions into discrete communities.
+sc.tl.ledien is analogous to FindClusters in Seurat. Both used to use Louvain rather than Leiden. Takes KNN graph and partitions into discrete communities.
 
 ![UMAP cluster names](results/figures/UMAP_clusterNames1.png)
 Figure 5. Marker genes were identified using sc.tl.rank_genes_groups.  Top genes per cluster were fed into Enrichr via gseapy, compared to (1) PanglaoDB_Augmented_2021: curated cell-type marker sets and (2) GO_Biological_Process_2021: functional pway annotation.  High confidence labels from both were then manually inspected and clusters assigned names as in figure.  Some drivers of naming include: erythroid and myeloid-like differentiation programs, cell state (cell cycle, ribosomal/translation activity, mt content, IFN response).  Some enrichment results i.e. "T cell" marker match are interesting and not likely true - CRISPRa could have induced marker genes for T cells, driving in silico labeling
@@ -98,11 +98,15 @@ Overall, classic technical artifacts such as sequencing depth, cell health/stres
 
 Which perturbations result in similar global changes in gene expression?
 
+Wilcoxon DE (target vs. control) per single CRISPRa target was run previously (above).  These results (L2FC and padj) were concatenated into one long-form table (gene × target are rows). Filtered for significant genes in at least 3 comparisons (padj < 0.05) — resulting in 4,602 genes. Pivoted to targets × genes (log2FC values, padj dropped), giving a ~105 × 4,602 signature matrix: one row per perturbation, DE by gene.
+
+This was wrapped as an AnnData object so the standard scanpy pipeline (z-score, PCA, neighbors, UMAP, Leiden) could be repurposed for perturbations instead of cells. Resulting UMAP clusters perturbations by similarity of downstream transcriptional effect — proximity reflects shared DE signature, not shared pathway membership or cell-state identity per se.
+
+*Caveat:* padj was used only to select which genes enter the matrix, not to mask individual (target, gene) log2FC values — a gene can pass the filter via strong significance in one target and still contribute noisy, non-significant log2FC from other targets to the same matrix.
+
+
 ![UMAP perturbation manifold](results/figures/perturbation_manifold_UMAP.png)
 Figure 7.  Wilcoxon was performed on each CRISPRa target cell set vs ctrl, L2FC and padj reported.  Put together into one df, then reduced number of genes considered to those with padj <0.05 in at least 3 comparisons (4602 genes remain).  PCA, clustering, UMAP reveal 5 Leiden clusters (colors).  Genes labeled on UMAP are CRISPRa perturbations; nearby points are perturbations that resulted in a similar DE signature across 4602 genes.
-
-
-
 
 ## Limitations
 
