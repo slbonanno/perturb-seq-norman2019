@@ -92,14 +92,14 @@ Figure 6. Technical and experimental covariates across UMAP space.
 
 (I) UMAP colored by cell cycle phase (G1/S/G2M), scored via canonical S- and G2M-phase marker genes.
 
-# Analysis of influence of perturbation on cell-classification
+## Orthogonal analysis of influence of perturbation on cell-classification
 Returning to adata.obs (cell-level GEX table) and pulling target and clusterName1, we build a composition table counting for each target how many of its cells fall into each cluster, then convert those counts to within-target fractions:
 |               | In this cluster | NOT in this cluster |
 |---------------|:----------------:|:--------------------:|
 | Target cells  | a                | b                    |
 | Control cells | c                | d                    |
 
-Ran fisher_exact([[a,b],[c,d]]) on that table, giving odds_ratio and pval per pair, adjusted pvals and stored as a df for plotting.
+Ran fisher_exact([[a,b],[c,d]]) on that table, giving odds_ratio = (a × d) / (b × c) and pval per target-cluster pair, adjusted pvals and stored as a df for plotting.
 A heatmap was generated to visualize enrichment of targets to particular clusters
 
 ![Heatmap of targets and cell-class clusters: numbers of cells](results/figures/perturbation_cluster_enrichment_heatmap.png)
@@ -121,6 +121,34 @@ This was wrapped as an AnnData object so the standard scanpy pipeline (z-score, 
 
 ![UMAP perturbation manifold](results/figures/perturbation_manifold_UMAP.png)
 Figure 8.  Genes labeled on UMAP are CRISPRa perturbations; nearby points are perturbations that resulted in a similar DE signature across 4602 genes.
+
+The targets that share a cluster (above) may be known to converge on a signaling pathway, or even to interact directly at the protein level.
+
+STRING-db was queried for known interactions among each cluster's genes, using REST API and the "network" enpoint, which returns a confidence scored interaction.
+
+Protein-protein interaction (PPI) network diagrams were constructed, per cluster.
+
+![PPI network diagrams](results/figures/manifold_cluster_STRING_networks.png)
+Figure 9. STRING protein-interaction networks within each perturbation manifold cluster.
+
+For each manifold cluster (Figure 8), STRING was queried for known/predicted interactions among member target genes (required confidence score ≥400, "medium confidence"). Node color matches manifold cluster identity (color) in Figure 8; edge width scales with STRING combined confidence score. Nodes with no edges had no interactions meeting this threshold.
+
+Manifold clustering was built purely from similarity of downstream DE signature (Figure 8), independent of any interaction data. Sparse or absent networks within a cluster (e.g. KLF1, isolated despite clustering with MAP2K3/MAP2K6) indicate co-clustered targets need not physically or functionally interact — shared transcriptional consequence can also arise from independent, convergent regulation of the same downstream program.
+
+The members of each cluster and their interactions are intriguing - reflections by cluster, below.   Note that each cluster seems to have some TFs (often with multiple family members) that may drive most of the gene expression changes.
+
+cluster 0: The CEBPs, JUN, and EGR1 are important factors in binding CREB and other partners to regulate transcription in many settings (most of my experience is from neurons and immediate-early gene signaling).  Targeting other transcription factors such as the FOX and HOX proteins, or DNA repressors such as the ZBTBs could result in similar DE signatures.
+
+cluster 1: Protein Tyrosine Phosphatases can be specific but also somewhat less intrinsically so than kinases.  Activation of PTPN9, 12, and 13 may yield similarly promiscuous dephosphorylation, and the TBXs may be the TF these changes converge on.
+
+cluster 2: KLF1 is a well-established, textbook erythroid master TF.  It may be intriguing to look at MAP2K3 and 6 signaling in the context of erythroid cells and differentiation, as well ask BAK1 and the BCL anti-apoptosis genes.
+
+cluster 3: This cluster exhibits one of the more striking "possibly linear" interaction profiles - some of these genes may signal sequentially, leading to gene expression changes.  If so, perturbing any of them in the pathway could lead to similar DE signatures - though it is also possible the sign and magnitude of these changes would vary and diverge.
+
+cluster 4: ISL2, SNAI1, and ETS2 all influence gene expression at the DNA level, while COL1A1 and 2A1 are collagen proteins, so some redundancy would be expected.
+
+cluster 5: targets in this cluster are strikingly centered on cell cycle, with known PPI.  While IRF1 is best known as master regulator of the IFN response, it can also induce apoptosic and cell-cycle arrest in some contexts.
+
 
 ## Limitations
 
