@@ -98,6 +98,7 @@ Returning to adata.obs (cell-level GEX table) and pulling target and clusterName
 |---------------|:----------------:|:--------------------:|
 | Target cells  | a                | b                    |
 | Control cells | c                | d                    |
+
 Ran fisher_exact([[a,b],[c,d]]) on that table, giving odds_ratio and pval per pair, adjusted pvals and stored as a df for plotting.
 A heatmap was generated to visualize enrichment of targets to particular clusters
 
