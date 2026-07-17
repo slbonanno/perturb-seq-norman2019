@@ -1,4 +1,4 @@
-# Perturb-seq Reanalysis — Norman et al. 2019
+# Perturb-seq reanalysis — Norman et al. 2019
 
 A reprocessing of Norman et al. 2019 CRISPRa scRNA-seq data, to practice data QC, filtering, DE analysis, and hypothesis generation
 
@@ -91,6 +91,15 @@ Figure 6. Technical and experimental covariates across UMAP space.
 (H) UMAP colored by complexity score (log10 genes detected / log10 UMI count), flagging cells with low gene diversity relative to depth.
 
 (I) UMAP colored by cell cycle phase (G1/S/G2M), scored via canonical S- and G2M-phase marker genes.
+
+# Analysis of influence of perturbation on cell-classification
+Returning to adata.obs (cell-level GEX table) and pulling target and clusterName1, we build a composition table counting for each target how many of its cells fall into each cluster, then convert those counts to within-target fractions:
+|               | In this cluster | NOT in this cluster |
+|---------------|:----------------:|:--------------------:|
+| Target cells  | a                | b                    |
+| Control cells | c                | d                    |
+Ran fisher_exact([[a,b],[c,d]]) on that table, giving odds_ratio and pval per pair, adjusted pvals and stored as a df for plotting.
+A heatmap was generated to visualize enrichment of targets to particular clusters
 
 ![Heatmap of targets and cell-class clusters: numbers of cells](results/figures/perturbation_cluster_enrichment_heatmap.png)
 Figure 7. Heatmap showing the log2(odds ratio vs ctrl) for each target across cluster classifications (proportion of cells in each cluster).  Though clustering and naming were done agnostic to perturbation_status, some targets drive cells to a particular cluster e.g. CRISPRa on CEBPA, B, and E result in cells classified as Myeloid-like 2.
